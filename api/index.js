@@ -3,9 +3,15 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import userRouter from './routes/user.route.js';
 import authRouter from './routes/auth.route.js';
-const app = express();
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import listingRouter from './routes/listing.route.js'
+
+const app = express();
+
 app.use(cors());
+app.use(cookieParser());
+app.use(express.json());
 
 dotenv.config();
 mongoose
@@ -17,13 +23,13 @@ mongoose
     console.log(err);
   });
  
-app.use(express.json());
 app.listen(3000, () => {
   console.log('Server is running on port 3000!');
 });
 
 app.use('/api/user', userRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/listing',listingRouter);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;

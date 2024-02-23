@@ -1,7 +1,9 @@
 import User from "../models/user.model.js";
 import bcryptjs from "bcryptjs";
-import { errorHandler } from "../utils/error.js";
 import jwt from "jsonwebtoken";
+
+// Import errorHandler if it's defined in your application
+// import { errorHandler } from "../utils/error.js";
 
 export const signup = async (req, res, next) => {
   const { username, email, password } = req.body;
@@ -9,9 +11,11 @@ export const signup = async (req, res, next) => {
   const newUser = new User({ username, email, password: hashedPassword });
   try {
     await newUser.save();
-    res.status(201).json("User created successfully!");
+    res.status(201).json({ success: true, message: "User created successfully!" });
   } catch (error) {
-    next(error);
+    // If errorHandler is defined:
+    // next(errorHandler(500, "Internal Server Error"));
+    next(error); // Otherwise, pass the error to the default error handler
   }
 };
 
@@ -21,13 +25,13 @@ export const signin = async (req, res, next) => {
     const validUser = await User.findOne({ email });
 
     if (!validUser) {
-      return next(errorHandler(404, "User not found!"));
+      return next({ status: 404, message: "User not found!" });
     }
 
     const validPassword = bcryptjs.compareSync(password, validUser.password);
 
     if (!validPassword) {
-      return next(errorHandler(401, "Wrong credentials!"));
+      return next({ status: 401, message: "Wrong credentials!" });
     }
 
     const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
@@ -54,9 +58,9 @@ export const google = async (req, res, next) => {
     });
     if (user) {
       const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
-      const { password: pass, ...rest } = user.doc;
+      const { password: pass, ...rest } = user._doc;
       res
-        .cookie("access_token", toke, { httpOnly: true })
+        .cookie("access_token", token, { httpOnly: true })
         .status(200)
         .json(rest);
     } else {
@@ -80,5 +84,17 @@ export const google = async (req, res, next) => {
         .status(200)
         .json(rest);
     }
-  } catch (error) {}
+  } catch (error) {
+    next(error); // Handle errors properly
+  }
+};
+
+export const signOut = (req, res, next) =>{
+  try {
+    res.clearCookie('access_token')
+    res.status(200).json({ success: true, message: "User Has Been SignOut" });
+    
+  } catch (error) {
+    next(error);
+  }
 };

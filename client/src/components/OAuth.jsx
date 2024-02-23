@@ -1,5 +1,5 @@
 import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
-import { app } from "../firebase";
+import {app}  from "../firebase";
 import { Navigate } from "react-router-dom";
 
 export default function OAuth() {
@@ -24,6 +24,8 @@ export default function OAuth() {
       });
       const data = await res.json();
       Navigate('/')
+      console.log(data);
+    
     } catch (error) {
       console.log("Could Not Sign With Google", error);
     }
