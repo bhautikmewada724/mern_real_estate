@@ -14,11 +14,12 @@ export default function SignUp() {
       [e.target.id]: e.target.value,
     });
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
-      const res = await fetch("api/auth/signup", {
+      const res = await fetch("/api/auth/signup", { // Added "/" before "api/auth/signup"
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -26,10 +27,8 @@ export default function SignUp() {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-      // console.log(data);
-      if (data.success === false) {
-        setError(data.message);
-        setLoading(false);
+      if (!res.ok) { // Checking if response is not ok
+        throw new Error(data.message || "Sign up failed");
       }
       setLoading(false);
       setError(null);
@@ -39,8 +38,6 @@ export default function SignUp() {
       setError(error.message);
     }
   };
-  // console.log(formData);
-  // console.log("Error:", error);
 
   return (
     <div>
@@ -72,7 +69,7 @@ export default function SignUp() {
             disabled={loading}
             className="bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80"
           >
-            {loading ? "Loading.." : "SignUp"}
+            {loading ? "Loading.." : "Sign Up"}
           </button>
           <OAuth />
         </form>
