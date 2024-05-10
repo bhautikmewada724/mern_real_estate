@@ -1,13 +1,31 @@
 import { FaSearch } from "react-icons/fa";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
 
 export default function Header() {
-  const { user } = useSelector((state) => state.user); // Changed from state.user.user to state.user
+  const { currentUser} = useSelector(
+    (state) => state.user.user
+  );
+  const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
+  console.log("currentUser1111111111",currentUser);
 
-  // Check if user exists before destructuring currentUser
-  const currentUser = user ? user.currentUser : null;
+  const handleSubmit = (e) => {
+    e.preventDefault(); // Added parentheses
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set("searchTerm", searchTerm);
+    const searchQuery = urlParams.toString();
+    navigate(`/search?${searchQuery}`);
+  };
 
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchTermFromUrl = urlParams.get("searchTerm");
+    if (searchTermFromUrl) {
+      setSearchTerm(searchTermFromUrl);
+    }
+  }, [window.location.search]);
 
   return (
     <>
@@ -19,13 +37,23 @@ export default function Header() {
               <span className="text-slate-700">Estate</span>
             </h1>
           </Link>
-          <form className="bg-slate-100 p-3 rounded-lg flex items-center">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-slate-100 p-3 rounded-lg flex items-center"
+          >
             <input
               type="text"
               placeholder="Search..."
               className="bg-transparent focus:outline-none w-24 sm:w-64"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <FaSearch className="text-slate-600" />
+            {searchTerm && (
+              <button>
+                {" "}
+                <FaSearch className="text-slate-600" />
+              </button>
+            )}
           </form>
           <ul className="flex gap-4">
             <Link to="/">
@@ -39,17 +67,17 @@ export default function Header() {
               </li>
             </Link>
 
-            {currentUser ? (
+            {currentUser != null &&  currentUser.message == "User Has Been SignOut" ? (
+              <Link to="/sign-in">
+                <li className="text-slate-700 hover:underline">Sign in</li>
+              </Link>
+            ) : (
               <Link to="/profile">
                 <img
                   className="rounded-full h-7 w-7 object-cover"
-                  src={currentUser.data?.avatar}
+                  src={currentUser != null ?  currentUser.data?.avatar : ""}  
                   alt="profile"
                 />
-              </Link>
-            ) : (
-              <Link to={"/sign-in"}>
-                <li className="text-slate-700 hover:underline">Sign in</li>
               </Link>
             )}
           </ul>

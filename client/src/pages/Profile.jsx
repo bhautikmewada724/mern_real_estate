@@ -1,7 +1,8 @@
-import { useSelector, useDispatch } from "react-redux";
-import { useRef, useState, useEffect } from "react";
+import Swal from 'sweetalert2/dist/sweetalert2.js';
+import 'sweetalert2/dist/sweetalert2.css';
+import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
+import { useSelector, useDispatch } from "react-redux";
 import {
   getDownloadURL,
   getStorage,
@@ -33,6 +34,7 @@ export default function Profile() {
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const [showListingsError, setShowListingsError] = useState(false);
   const [userListings, setUserListings] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (file) {
@@ -71,6 +73,7 @@ export default function Profile() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
     try {
       dispatch(updateUserStart());
       const res = await fetch(`/api/user/update/${currentUser.data._id}`, {
@@ -85,45 +88,78 @@ export default function Profile() {
         dispatch(updateUserFailure(data.message));
         return;
       }
-
+  
       dispatch(updateUserSuccess(data));
       setUpdateSuccess(true);
     } catch (error) {
       dispatch(updateUserFailure(error.message));
     }
   };
+  
 
   const handleDeleteUser = async () => {
     try {
-      dispatch(deleteUserStart());
-      const res = await fetch(`/api/user/delete/${currentUser?.data?._id}`, {
-        method: "DELETE",
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
       });
-      const data = await res.json();
-      if (data.success === false) {
-        dispatch(deleteUserFailure(data.message));
-        return;
+      
+      if (result.isConfirmed) {
+        dispatch(deleteUserStart());
+        const res = await fetch(`/api/user/delete/${currentUser?.data?._id}`, {
+          method: "DELETE",
+        });
+        const data = await res.json();
+        if (data.success === false) {
+          dispatch(deleteUserFailure(data.message));
+          return;
+        }
+        dispatch(deleteUserSuccess(data));
+        navigate("/sign-in");
+        Swal.fire(
+          'Deleted!',
+          'Your account has been deleted.',
+          'success'
+        );
       }
-      dispatch(deleteUserSuccess(data));
-      window.location.href = "/sign-in";
     } catch (error) {
       dispatch(deleteUserFailure(error.message));
     }
   };
 
-  const navigate = useNavigate();
-
   const handleSignOut = async () => {
     try {
-      dispatch(signOutUserStart());
-      const res = await fetch("/api/auth/signout");
-      const data = await res.json();
-      if (data.success === false) {
-        dispatch(deleteUserFailure(data.message));
-        return;
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You want to sign out?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, sign out!'
+      });
+      
+      if (result.isConfirmed) {
+        dispatch(signOutUserStart());
+        const res = await fetch("/api/auth/signout");
+        const data = await res.json();
+        if (data.success === false) {
+          dispatch(deleteUserFailure(data.message));
+          return;
+        }
+        dispatch(deleteUserSuccess(data));
+        navigate("/"); // Navigate to the sign-in page
+        Swal.fire(
+          'Signed out!',
+          'You have been signed out.',
+          'success'
+        );
       }
-      dispatch(deleteUserSuccess(data));
-      navigate("/sign-in"); // Navigate to the sign-in page
     } catch (error) {
       dispatch(deleteUserFailure(data.message));
     }

@@ -2,15 +2,13 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import OAuth from "../components/OAuth";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  signInStart,
-  signInFailure,
-  signInSuccess,
-} from "../redux/user/userslice.js";
+import { signInStart, signInFailure, signInSuccess } from "../redux/user/userslice.js";
+import Swal from 'sweetalert2/dist/sweetalert2.js';
+import 'sweetalert2/dist/sweetalert2.css';
 
 export default function SignIn() {
   const [formData, setFormData] = useState({});
-  const { loading, error } = useSelector((state) => state.user);
+  const { loading, error } = useSelector((state) => state.user.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -23,6 +21,21 @@ export default function SignIn() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const { email, password } = formData;
+
+    // Regular expression for email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    // Client-side validation
+    if (!email || !password) {
+      dispatch(signInFailure("Email and password are required"));
+      return;
+    }
+    if (!emailRegex.test(email)) {
+      dispatch(signInFailure("Invalid email address"));
+      return;
+    }
+
     try {
       dispatch(signInStart());
       const res = await fetch("/api/auth/signin", {
@@ -38,6 +51,12 @@ export default function SignIn() {
       }
       dispatch(signInSuccess(data));
       navigate("/");
+      Swal.fire({ // Show SweetAlert success message
+        icon: 'success',
+        title: 'Signed In Successfully!',
+        showConfirmButton: false,
+        timer: 1500
+      });
     } catch (error) {
       dispatch(signInFailure(error.message));
     }
@@ -45,7 +64,6 @@ export default function SignIn() {
 
   return (
     <div>
-      <div>SignIn</div>
       <div className="p-3 max-w-lg mx-auto">
         <h1 className="text-3xl text-center font-semibold my-7">Sign In</h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -72,7 +90,7 @@ export default function SignIn() {
           <OAuth />
         </form>
         <div className="flex gap-2 mt-5">
-          <p>Dont have an account?</p>
+          <p>You does not have an account?</p>
           <Link to={"/sign-up"}>
             <span className="text-blue-700">Sign up</span>
           </Link>

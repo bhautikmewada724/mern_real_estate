@@ -2,10 +2,12 @@ import Listing from "../models/listing.model.js";
 import { errorHandler } from "../utils/error.js";
 
 export const createListing = async (req, res, next) => {
+  console.log(req.body);
   try {
     const listing = await Listing.create(req.body);
     return res.status(201).json(listing);
   } catch (error) {
+    console.log(error);
     next(error);
   }
 };
@@ -24,12 +26,11 @@ export const deleteListing = async (req, res, next) => {
 };
 
 export const updateListing = async (req, res, next) => {
-  const listing = await Listing.findById(req.body.id);
+  // const listing = await Listing.findById(req.body.id);
+  const listing = await Listing.find({_id :req.params.id});
+  // const listing = await Listing.find();
   if (!listing) {
     return next(errorHandler(401, "Listing Not Found"));
-  }
-  if (req.params.id !== listing.userRef) {
-    return next(errorHandler(401, "You Can Update Your Own Listing"));
   }
   try {
     const updatedListing = await Listing.findByIdAndUpdate(
@@ -37,8 +38,10 @@ export const updateListing = async (req, res, next) => {
       req.body,
       { new: true }
     );
-    res.status(200).json(updateListing);
+    console.log(updatedListing);
+    res.status(200).json({ data  : updatedListing});
   } catch (error) {
+    console.log(error);
     next(error);
   }
 };

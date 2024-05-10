@@ -155,15 +155,19 @@ export default function CreateListing() {
         },
         body: JSON.stringify({
           ...formData,
-          userRef: currentUser._id,
+          userRef: currentUser.data._id,
         }),
       });
+
+      console.log("res : " , res);
       const data = await res.json();
+      console.log("data" , data)
       setLoading(false);
       if (data.success === false) {
         setError(data.message);
       }
-      navigate(`/listing/${data._id}`);
+      navigate(`/`);
+      // navigate(`/listing/${data._id}`);
     } catch (error) {
       setError(error.message);
       setLoading(false);
@@ -376,7 +380,7 @@ export default function CreateListing() {
             disabled={loading || uploading}
             className='p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80'
           >
-            {loading ? 'Creating...' : 'Update listing'}
+            {loading ? 'Updating...' : 'Update listing'}
           </button>
           {error && <p className='text-red-700 text-sm'>{error}</p>}
         </div>

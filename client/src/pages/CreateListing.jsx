@@ -100,7 +100,7 @@ export default function CreateListing() {
       });
     }
 
-    if (
+  if (
       e.target.id === 'parking' ||
       e.target.id === 'furnished' ||
       e.target.id === 'offer'
@@ -125,6 +125,7 @@ export default function CreateListing() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("curruser " , currentUser);
     try {
       if (formData.imageUrls.length < 1)
         return setError('You must upload at least one image');
@@ -139,7 +140,7 @@ export default function CreateListing() {
         },
         body: JSON.stringify({
           ...formData,
-          userRef: currentUser._id,
+          userRef: currentUser.data._id,
         }),
       });
       const data = await res.json();
@@ -147,7 +148,7 @@ export default function CreateListing() {
       if (data.success === false) {
         setError(data.message);
       }
-      navigate(`/listing/${data._id}`);
+      navigate(`/`);
     } catch (error) {
       setError(error.message);
       setLoading(false);

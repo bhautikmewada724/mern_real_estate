@@ -11,7 +11,9 @@ export const signup = async (req, res, next) => {
   const newUser = new User({ username, email, password: hashedPassword });
   try {
     await newUser.save();
-    res.status(201).json({ success: true, message: "User created successfully!" });
+    res
+      .status(201)
+      .json({ success: true, message: "User created successfully!" });
   } catch (error) {
     // If errorHandler is defined:
     // next(errorHandler(500, "Internal Server Error"));
@@ -41,7 +43,6 @@ export const signin = async (req, res, next) => {
     res
       .cookie("access_token", token, {
         httpOnly: true,
-        maxAge: 3600000,
         secure: process.env.NODE_ENV === "production",
       })
       .status(200)
@@ -50,50 +51,60 @@ export const signin = async (req, res, next) => {
     next(error);
   }
 };
-
 export const google = async (req, res, next) => {
   try {
-    const user = await User.findOne({
-      email: req.body.email,
-    });
+    const { email, name, photo } = req.body;
+
+    // Check if the user already exists in the database
+    let user = await User.findOne({ email });
+
     if (user) {
+      // If the user already exists, generate a JWT token and send it in the response
       const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
-      const { password: pass, ...rest } = user._doc;
-      res
+      const { password, ...userData } = user._doc;
+      return res
         .cookie("access_token", token, { httpOnly: true })
         .status(200)
-        .json(rest);
+        .json(userData);
     } else {
+      // If the user does not exist, generate a random password and create a new user
       const generatedPassword =
         Math.random().toString(36).slice(-8) +
         Math.random().toString(36).slice(-8);
       const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
+
+      const username =
+        name.split(" ").join("").toLowerCase() +
+        Math.random().toString(36).slice(-4);
+
       const newUser = new User({
-        username:
-          req.body.name.split(" ").join("").toLowerCase() +
-          Math.random().toString(36).slice(-4),
-        email: req.body.mail,
+        username,
+        email,
         password: hashedPassword,
-        avatar: req.body.photo,
+        avatar: photo,
       });
+
+      // Save the new user to the database
       await newUser.save();
+
+      // Generate a JWT token for the new user and send it in the response
       const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
-      const { password: pass, ...rest } = newUser._doc;
-      res
+      const { password, ...userData } = newUser._doc;
+      return res
         .cookie("access_token", token, { httpOnly: true })
         .status(200)
-        .json(rest);
+        .json(userData);
     }
   } catch (error) {
-    next(error); // Handle errors properly
+    // If an error occurs, pass it to the error handling middleware
+    next(error);
   }
 };
 
-export const signOut = (req, res, next) =>{
+export const signOut = (req, res, next) => {
   try {
-    res.clearCookie('access_token')
+    res.clearCookie("access_token");
     res.status(200).json({ success: true, message: "User Has Been SignOut" });
-    
   } catch (error) {
     next(error);
   }

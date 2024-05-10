@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import OAuth from "../components/OAuth";
+import Swal from "sweetalert2/dist/sweetalert2.js";
+import "sweetalert2/dist/sweetalert2.css";
 
 export default function SignUp() {
   const [formData, setFormData] = useState({});
@@ -17,9 +19,29 @@ export default function SignUp() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const { email, password } = formData;
+
+    // Regular expressions for email and password validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
+
+    // Client-side validation
+    if (!email || !password) {
+      setError("Email and password are required");
+      return;
+    }
+    if (!emailRegex.test(email)) {
+      setError("Invalid email address");
+      return;
+    }
+    if (!passwordRegex.test(password)) {
+      setError("Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number");
+      return;
+    }
+
     try {
       setLoading(true);
-      const res = await fetch("/api/auth/signup", { // Added "/" before "api/auth/signup"
+      const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -27,11 +49,19 @@ export default function SignUp() {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-      if (!res.ok) { // Checking if response is not ok
+      if (!res.ok) {
         throw new Error(data.message || "Sign up failed");
       }
       setLoading(false);
       setError(null);
+      // Show success message
+      Swal.fire({
+        icon: "success",
+        title: "Signed Up Successfully!",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+      // Navigate to sign-in page
       navigate("/sign-in");
     } catch (error) {
       setLoading(false);

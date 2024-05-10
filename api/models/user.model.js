@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
     },
     avatar:{
         type:String,
-        default:"https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YmVhY2glMjBob3VzZXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=60"
+        default:"https://www.google.com/url?sa=i&url=https%3A%2F%2Fsupport.hubstaff.com%2Fprofile-pictures-for-hubstaff-talent%2F&psig=AOvVaw1HDmU6YrE5v9itPaC_BZLU&ust=1710644134693000&source=images&cd=vfe&opi=89978449&ved=0CBMQjRxqFwoTCOCPspTk94QDFQAAAAAdAAAAABAE"
     },
 }, { timestamps: true });
 
