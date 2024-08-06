@@ -8,6 +8,8 @@ import {
 import { app } from '../firebase';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2'; // Import SweetAlert
+
 
 export default function CreateListing() {
   const { currentUser } = useSelector((state) => state.user.user);
@@ -147,6 +149,15 @@ export default function CreateListing() {
       setLoading(false);
       if (data.success === false) {
         setError(data.message);
+      }else{
+        Swal.fire({
+          title: 'Success!',
+          text: 'Listing created successfully',
+          icon: 'success',
+          confirmButtonText: 'OK'
+        }).then(() => {
+          navigate(`/`);
+        });
       }
       navigate(`/`);
     } catch (error) {

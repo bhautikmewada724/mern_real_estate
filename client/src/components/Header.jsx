@@ -9,7 +9,6 @@ export default function Header() {
   );
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
-  console.log("currentUser1111111111",currentUser);
 
   const handleSubmit = (e) => {
     e.preventDefault(); // Added parentheses
@@ -29,7 +28,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="bg-slate-200 shadow-md">
+      <header className="bg-orange-700-200-200 shadow-md">
         <div className="flex justify-between items-center max-w-6xl mx-auto p-3">
           <Link to="/">
             <h1 className="font-bold text-sm sm:text-xl flex flex-wrap">

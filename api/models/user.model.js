@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
     },
     avatar:{
         type:String,
-        default:"https://www.google.com/url?sa=i&url=https%3A%2F%2Fsupport.hubstaff.com%2Fprofile-pictures-for-hubstaff-talent%2F&psig=AOvVaw1HDmU6YrE5v9itPaC_BZLU&ust=1710644134693000&source=images&cd=vfe&opi=89978449&ved=0CBMQjRxqFwoTCOCPspTk94QDFQAAAAAdAAAAABAE"
+        default:"https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg?auto=compress&cs=tinysrgb&w=600"
     },
 }, { timestamps: true });
 

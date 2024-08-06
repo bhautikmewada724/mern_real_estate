@@ -8,6 +8,7 @@ import {
 import { app } from '../firebase';
 import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
+import Swal from 'sweetalert2'; // Import SweetAlert
 
 export default function CreateListing() {
   const { currentUser } = useSelector((state) => state.user.user);
@@ -165,14 +166,22 @@ export default function CreateListing() {
       setLoading(false);
       if (data.success === false) {
         setError(data.message);
+      } else {
+        Swal.fire({
+          title: 'Success!',
+          text: 'Listing updated successfully',
+          icon: 'success',
+          confirmButtonText: 'OK'
+        }).then(() => {
+          navigate(`/`);
+        });
       }
-      navigate(`/`);
-      // navigate(`/listing/${data._id}`);
     } catch (error) {
       setError(error.message);
       setLoading(false);
     }
   };
+
   return (
     <main className='p-3 max-w-4xl mx-auto'>
       <h1 className='text-3xl font-semibold text-center my-7'>

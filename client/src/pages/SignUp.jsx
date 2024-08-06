@@ -3,12 +3,19 @@ import { Link, useNavigate } from "react-router-dom";
 import OAuth from "../components/OAuth";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import "sweetalert2/dist/sweetalert2.css";
+import {
+  signUpFailure,
+  signUpStart,
+  signUpSuccess,
+} from "../redux/user/userslice";
+import { useDispatch } from "react-redux";
 
 export default function SignUp() {
   const [formData, setFormData] = useState({});
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({
@@ -35,11 +42,14 @@ export default function SignUp() {
       return;
     }
     if (!passwordRegex.test(password)) {
-      setError("Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number");
+      setError(
+        "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number"
+      );
       return;
     }
 
     try {
+      dispatch(signUpStart());
       setLoading(true);
       const res = await fetch("/api/auth/signup", {
         method: "POST",
@@ -52,6 +62,7 @@ export default function SignUp() {
       if (!res.ok) {
         throw new Error(data.message || "Sign up failed");
       }
+      dispatch(signUpSuccess(data));
       setLoading(false);
       setError(null);
       // Show success message
@@ -62,8 +73,9 @@ export default function SignUp() {
         timer: 1500,
       });
       // Navigate to sign-in page
-      navigate("/sign-in");
+      navigate("/");
     } catch (error) {
+      dispatch(signUpFailure(error.message));
       setLoading(false);
       setError(error.message);
     }
@@ -95,6 +107,8 @@ export default function SignUp() {
             id="password"
             onChange={handleChange}
           />
+          {error && <p className="text-red-500 mt-5">{error}</p>}
+
           <button
             disabled={loading}
             className="bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80"
@@ -109,7 +123,6 @@ export default function SignUp() {
             <span className="text-blue-700">Sign in</span>
           </Link>
         </div>
-        {error && <p className="text-red-500 mt-5">{error}</p>}
       </div>
     </div>
   );
