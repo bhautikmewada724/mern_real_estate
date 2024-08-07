@@ -2,12 +2,14 @@
   "name": "real_estate",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "api/index.js",
   "type": "module",
   "scripts": {
     "dev": "nodemon api/index.js",
     "start": "node api/index.js",
-    "build": "npm install"
+    "client": "npm --prefix client start",
+    "client:build": "npm --prefix client run build",
+    "build": "npm run client:build && npm install"
   },
   "keywords": [],
   "author": "",
